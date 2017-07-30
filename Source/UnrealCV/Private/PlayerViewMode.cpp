@@ -129,21 +129,8 @@ void FPlayerViewMode::DebugMode()
 	ApplyPostProcess("debug");
 }
 
-// TODO: Clean up this messy function.
-void PaintObjects()
-{
-	UWorld* World = FUE4CVServer::Get().GetGameWorld();
-	APlayerController* PlayerController = World->GetFirstPlayerController();
-	check(PlayerController);
-	APawn* Pawn = PlayerController->GetPawn();
-	check(Pawn);
-	FObjectPainter::Get().Reset(Pawn->GetLevel());
-	FObjectPainter::Get().PaintColors();
-}
-
 void FPlayerViewMode::Object()
 {
-	PaintObjects();
 	UWorld* World = FUE4CVServer::Get().GetGameWorld();
 	auto Viewport = World->GetGameViewport();
 	FViewMode::VertexColor(Viewport->EngineShowFlags);
@@ -217,14 +204,14 @@ void FPlayerViewMode::SaveGameDefault(FEngineShowFlags ShowFlags)
 
 void FPlayerViewMode::VertexColor()
 {
-	auto Viewport = GWorld->GetGameViewport();
+	auto Viewport = FUE4CVServer::Get().GetGameWorld()->GetGameViewport();
 	FViewMode::VertexColor(Viewport->EngineShowFlags);
 }
 
 void FPlayerViewMode::NoTransparency()
 {
 	// Iterate over all the materials in the scene and replace transparent materials to non-transparent 
-	for (TActorIterator<AActor> ActorItr(GWorld); ActorItr; ++ActorItr)
+	for (TActorIterator<AActor> ActorItr(FUE4CVServer::Get().GetGameWorld()); ActorItr; ++ActorItr)
 	{
 		// Iterate over all the material of the actor
 		TArray<UActorComponent*> TheComponents;

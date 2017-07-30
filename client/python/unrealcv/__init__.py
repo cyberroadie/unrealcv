@@ -1,6 +1,6 @@
 '''
 UnrealCV
-===
+========
 Provides functions to interact with games built using Unreal Engine.
 
 >>> import unrealcv
@@ -37,7 +37,8 @@ class SocketMessage(object):
     @classmethod
     def ReceivePayload(cls, socket):
         '''
-        Return only payload, not the raw message, None if failed
+        Return only payload, not the raw message, None if failed.
+        socket: a blocking socket for read data.
         '''
         # rbufsize = -1 # From SocketServer.py
         rbufsize = 0
@@ -69,7 +70,7 @@ class SocketMessage(object):
         _L.debug('Receive payload size %d', payload_size)
 
         # if the message is incomplete, should wait until all the data received
-        payload = ""
+        payload = b""
         remain_size = payload_size
         while remain_size > 0:
             data = rfile.read(remain_size)
@@ -84,7 +85,7 @@ class SocketMessage(object):
 
         rfile.close()
 
-        return payload
+        return payload.decode('UTF-8')
 
     @classmethod
     def WrapAndSendPayload(cls, socket, payload):
@@ -106,7 +107,7 @@ class SocketMessage(object):
             wfile.write(struct.pack(fmt, socket_message.payload_size))
             # print 'Sent ', socket_message.payload_size
 
-            wfile.write(payload)
+            wfile.write(payload.encode('UTF-8'))
             # print 'Sent ', payload
             wfile.flush()
             wfile.close() # Close file object, not close the socket
@@ -278,16 +279,16 @@ class Client(object):
         Send a request to server and wait util get a response from server or timeout.
 
         Parameters
-        ---
+        ----------
         cmd : string, command to control the game
         More info can be seen from http://unrealcv.github.io/commands.html
 
         Returns
-        ---
+        -------
         response: plain text message from server
 
         Examples
-        ---
+        --------
         >>> client = Client('localhost', 9000)
         >>> client.connect()
         >>> response = client.request('vget /camera/0/view')
